@@ -4,7 +4,7 @@ package com.example.competenciaia.presentation.chat
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.competenciaia.data.repository.MockChatRepository
+import com.example.competenciaia.data.repository.ChatRepositoryImpl
 import com.example.competenciaia.domain.model.Message
 import com.example.competenciaia.domain.usecase.GetChatResponseUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 
 class ChatViewModel : ViewModel() {
 
-    private val getChatResponseUseCase = GetChatResponseUseCase(MockChatRepository())
+    private val getChatResponseUseCase = GetChatResponseUseCase(ChatRepositoryImpl())
 
     private val _state = MutableStateFlow(ChatState())
     val state: StateFlow<ChatState> = _state.asStateFlow()
