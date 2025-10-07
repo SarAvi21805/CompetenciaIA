@@ -21,10 +21,10 @@ import com.example.competenciaia.presentation.ui.theme.LightPurple
 import com.example.competenciaia.presentation.ui.theme.MintGreen
 import com.example.competenciaia.presentation.ui.theme.SoftPink
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ChatScreen(viewModel: ChatViewModel = viewModel()) {
     val state by viewModel.state.collectAsState()
-    var textState by remember { mutableStateOf(TextFieldValue("")) }
 
     Column(
         modifier = Modifier
@@ -42,42 +42,75 @@ fun ChatScreen(viewModel: ChatViewModel = viewModel()) {
             }
         }
 
+        // --- SECCIÓN DE BOTONES DE RESPUESTA RÁPIDA (NUEVO) ---
+        if (state.availableOptions.isNotEmpty()) {
+            FlowRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                state.availableOptions.forEach { option ->
+                    Button(onClick = {
+                        viewModel.processIntent(ChatIntent.OptionSelected(option))
+                    }) {
+                        Text(text = option)
+                    }
+                }
+            }
+        }
+        // -----------------------------------------------------------
+
         if (state.isLoading) {
             LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
         }
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            TextField(
-                value = textState,
-                onValueChange = { textState = it },
-                modifier = Modifier.weight(1f),
-                placeholder = { Text("Escribe un mensaje...") },
-                colors = TextFieldDefaults.colors(
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent
-                ),
-                shape = RoundedCornerShape(24.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Button(
-                onClick = {
-                    if (textState.text.isNotBlank()) {
-                        viewModel.processIntent(ChatIntent.SendMessage(textState.text))
-                        textState = TextFieldValue("")
-                    }
-                },
-                shape = RoundedCornerShape(24.dp)
-            ) {
-                Text("Enviar")
-            }
+        // --- SECCIÓN DE ENTRADA DE TEXTO ---
+        // Se oculta si hay opciones disponibles para guiar al usuario
+        if (state.availableOptions.isEmpty()) {
+            MessageInput(onSendMessage = { messageText ->
+                viewModel.processIntent(ChatIntent.SendMessage(messageText))
+            })
         }
     }
 }
+
+@Composable
+fun MessageInput(onSendMessage: (String) -> Unit) {
+    var textState by remember { mutableStateOf(TextFieldValue("")) }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        TextField(
+            value = textState,
+            onValueChange = { textState = it },
+            modifier = Modifier.weight(1f),
+            placeholder = { Text("Escribe un mensaje...") },
+            colors = TextFieldDefaults.colors(
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent
+            ),
+            shape = RoundedCornerShape(24.dp)
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Button(
+            onClick = {
+                if (textState.text.isNotBlank()) {
+                    onSendMessage(textState.text)
+                    textState = TextFieldValue("")
+                }
+            },
+            shape = RoundedCornerShape(24.dp)
+        ) {
+            Text("Enviar")
+        }
+    }
+}
+
 
 @Composable
 fun MessageBubble(message: Message) {
