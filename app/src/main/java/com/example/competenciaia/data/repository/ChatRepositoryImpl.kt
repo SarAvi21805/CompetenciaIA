@@ -12,7 +12,7 @@ class ChatRepositoryImpl : ChatRepository {
 
     override suspend fun getAIResponse(userMessage: String): Message {
         val mensajeFinal = if (contieneHabitos(userMessage)) {
-            generarPromptHabitos(userMessage)
+            generarPromptHabitosDetallado(userMessage)
         } else {
             userMessage
         }
