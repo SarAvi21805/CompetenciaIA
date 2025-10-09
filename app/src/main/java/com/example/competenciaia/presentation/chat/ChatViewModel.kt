@@ -40,7 +40,7 @@ class ChatViewModel : ViewModel() {
     init {
         // Mensaje de bienvenida inicial
         val welcomeMessage = Message(
-            text = "¡Hola! Soy Vita, tu asistente de bienestar. Escribe 'recomiéndame una actividad' para empezar.",
+            text = "¡Hola! Soy Vita, tu asistente de bienestar. Escribe 'recomiendame una actividad' para empezar.",
             isFromUser = false
         )
         _state.value = _state.value.copy(messages = listOf(welcomeMessage))
@@ -54,7 +54,7 @@ class ChatViewModel : ViewModel() {
                 _state.value = _state.value.copy(messages = _state.value.messages + userMessage)
 
                 // Si el usuario pide una recomendación, iniciamos el flujo.
-                if (intent.message.contains("recomiéndame", ignoreCase = true)) {
+                if (intent.message.contains("recomiendame", ignoreCase = true) || intent.message.contains("actividad", ignoreCase = true)) {
                     startRecommendationFlow()
                 } else {
                     // Si no, simplemente llamamos a la IA con el texto.
